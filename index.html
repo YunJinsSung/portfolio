@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio | Immersive Gallery</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-color: #00ffcc;
+            --secondary-color: #ff0055;
+            --text-color: #ffffff;
+            --ui-bg: rgba(10, 10, 10, 0.85);
+            --ui-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- UI Overlay (Intro & Pause Menu) --- */
+        #blocker {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.4s ease;
+        }
+
+        .ui-panel {
+            width: 600px;
+            padding: 40px;
+            background: var(--ui-bg);
+            border: var(--ui-border);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ui-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent-color);
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 40px;
+            letter-spacing: 2px;
+        }
+
+        /* 조작 가이드 아이콘 */
+        .controls-guide {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .key-row { display: flex; gap: 5px; }
+
+        .key {
+            width: 40px; height: 40px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background: #1a1a1a;
+            color: var(--accent-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 0 #333;
+        }
+
+        .mouse-icon {
+            width: 30px; height: 46px;
+            border: 2px solid #666;
+            border-radius: 15px;
+            position: relative;
+        }
+        .mouse-icon::after {
+            content: '';
+            position: absolute;
+            top: 8px; left: 50%;
+            width: 4px; height: 8px;
+            background: var(--accent-color);
+            transform: translateX(-50%);
+            border-radius: 2px;
+            animation: scroll-ani 1s infinite;
+        }
+
+        .desc { font-size: 0.9rem; color: #888; margin-top: 5px; }
+
+        /* 버튼 스타일 */
+        .btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: #000;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #fff;
+            box-shadow: 0 0 20px var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .btn.secondary {
+            background: transparent;
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+        }
+        
+        .btn.secondary:hover {
+            background: var(--secondary-color);
+            color: #fff;
+            box-shadow: 0 0 20px var(--secondary-color);
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- In-Game UI --- */
+        #crosshair {
+            position: fixed;
+            top: 50%; left: 50%;
+            width: 6px; height: 6px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 0 8px var(--accent-color);
+            mix-blend-mode: difference;
+        }
+
+        /* --- 3D Scene --- */
+        #scene { width: 100vw; height: 100vh; perspective: 800px; overflow: hidden; }
+        #world { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
+
+        .floor {
+            position: absolute;
+            width: 4000px; height: 4000px;
+            background: 
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100px 100px;
+            transform: translate(-50%, -50%) rotateX(90deg) translateZ(200px);
+            left: 50%; top: 50%;
+        }
+
+        .ceiling {
+            position: absolute;
+            width: 4000px; height: 4000px;
+            background: radial-gradient(circle, transparent 20%, #000 80%);
+            transform: translate(-50%, -50%) rotateX(-90deg) translateZ(800px);
+            left: 50%; top: 50%; opacity: 0.5;
+        }
+
+        /* 작품 프레임 */
+        .art-frame {
+            position: absolute;
+            left: 50%; top: 50%;
+            width: 300px; height: 450px;
+            background: #0f0f0f;
+            border: 1px solid #333;
+            transform-style: preserve-3d;
+            transition: all 0.3s;
+        }
+        .art-frame:hover { border-color: var(--accent-color); box-shadow: 0 0 30px rgba(0, 255, 204, 0.3); }
+        .art-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        
+        .art-frame.video-frame { width: 600px; height: 340px; }
+
+        .art-info {
+            position: absolute; bottom: -50px; left: 0; width: 100%;
+            text-align: center; color: #fff; font-size: 0.9rem;
+            text-shadow: 0 2px 4px #000;
+        }
+
+        /* 배치 좌표 */
+        .title-obj { 
+            transform: translate(-50%, -50%) translateZ(-500px); 
+            color: #fff; text-align: center; 
+        }
+        .title-obj h2 { 
+            font-family: 'Orbitron'; font-size: 4rem; 
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        
+        #art1 { transform: translate(-50%, -50%) translate3d(-400px, 0, -1000px) rotateY(20deg); }
+        #art2 { transform: translate(-50%, -50%) translate3d(400px, 0, -1500px) rotateY(-20deg); }
+        #art3 { transform: translate(-50%, -50%) translate3d(-400px, 0, -2000px) rotateY(20deg); }
+        #art-video { 
+            transform: translate(-50%, -50%) translate3d(0, 0, -2800px);
+        }
+
+        /* 애니메이션 */
+        @keyframes scroll-ani {
+            0% { top: 8px; opacity: 1; }
+            100% { top: 18px; opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="blocker">
+        <div class="ui-panel">
+            <h1 class="title">My Portfolio</h1>
+            <p class="subtitle" id="status-text">IMMERSIVE AI EXHIBITION</p>
+
+            <div class="controls-guide">
+                <div class="control-group">
+                    <div class="key-row">
+                        <div class="key">W</div>
+                    </div>
+                    <div class="key-row">
+                        <div class="key">A</div>
+                        <div class="key">S</div>
+                        <div class="key">D</div>
+                    </div>
+                    <span class="desc">MOVE</span>
+                </div>
+
+                <div class="control-group" style="justify-content: flex-end;">
+                    <div class="mouse-icon"></div>
+                    <span class="desc">LOOK</span>
+                </div>
+
+                <div class="control-group" style="justify-content: flex-end;">
+                    <div class="key" style="width: 50px;">ESC</div>
+                    <span class="desc">EXIT</span>
+                </div>
+            </div>
+
+            <div id="btn-container">
+                <button class="btn" id="start-btn">ENTER GALLERY</button>
+                <button class="btn hidden" id="resume-btn">RESUME</button>
+                <button class="btn secondary hidden" id="restart-btn" onclick="location.reload()">SYSTEM RESTART</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crosshair"></div>
+
+    <div id="scene">
+        <div id="world">
+            <div class="floor"></div>
+            <div class="ceiling"></div>
+
+            <div class="title-obj">
+                <h2>My Portfolio</h2>
+                <p>Use WASD + Mouse to Explore</p>
+            </div>
+
+            <div class="art-frame" id="art1">
+                <img src="https://placehold.co/300x450/111/00ffcc?text=AI+01" class="art-img">
+                <div class="art-info">CYBER PUNK</div>
+            </div>
+            <div class="art-frame" id="art2">
+                <img src="https://placehold.co/300x450/222/ff0055?text=AI+02" class="art-img">
+                <div class="art-info">NEON SOUL</div>
+            </div>
+            <div class="art-frame" id="art3">
+                <img src="https://placehold.co/300x450/111/ffff00?text=AI+03" class="art-img">
+                <div class="art-info">DATA FLOW</div>
+            </div>
+
+            <div class="art-frame video-frame" id="art-video">
+                <img src="https://placehold.co/600x340/000/fff?text=Ad+Screen" class="art-img">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 설정 ---
+        const friction = 0.85;     
+        const sensitivity = 0.12;  
+        
+        const player = { x: 0, y: 0, z: 400, rotX: 0, rotY: 0, velX: 0, velZ: 0, bobTimer: 0 };
+        const keys = { w: false, a: false, s: false, d: false };
+
+        // --- DOM Elements ---
+        const blocker = document.getElementById('blocker');
+        const startBtn = document.getElementById('start-btn');
+        const resumeBtn = document.getElementById('resume-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const statusText = document.getElementById('status-text');
+        const world = document.getElementById('world');
+
+        let isLocked = false;
+        let hasStarted = false;
+
+        // --- 포인터 락 제어 ---
+        function lockPointer() {
+            document.body.requestPointerLock();
+        }
+
+        startBtn.addEventListener('click', lockPointer);
+        resumeBtn.addEventListener('click', lockPointer);
+
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === document.body) {
+                // 게임 진행 중
+                isLocked = true;
+                hasStarted = true;
+                blocker.style.opacity = '0';
+                setTimeout(() => blocker.style.display = 'none', 400);
+            } else {
+                // 일시 정지 (ESC 누름)
+                isLocked = false;
+                blocker.style.display = 'flex';
+                requestAnimationFrame(() => blocker.style.opacity = '1');
+                
+                if (hasStarted) {
+                    statusText.innerText = "SYSTEM PAUSED";
+                    startBtn.classList.add('hidden');
+                    resumeBtn.classList.remove('hidden');
+                    restartBtn.classList.remove('hidden');
+                }
+            }
+        });
+
+        // --- 입력 처리 ---
+        document.addEventListener('keydown', (e) => {
+            const key = e.code.toLowerCase().replace('key', '');
+            if (keys.hasOwnProperty(key)) keys[key] = true;
+        });
+        document.addEventListener('keyup', (e) => {
+            const key = e.code.toLowerCase().replace('key', '');
+            if (keys.hasOwnProperty(key)) keys[key] = false;
+        });
+
+        // --- 마우스 시선 (Y축 반전 적용됨) ---
+        document.addEventListener('mousemove', (e) => {
+            if (!isLocked) return;
+            player.rotY -= e.movementX * sensitivity;
+            
+            // Y축 반전: 마우스를 위로 올리면(음수) rotX를 더해서 시선이 아래로?
+            // 요청사항: 위, 아래 볼때 마우스 방향 바뀜 (Inverted Y)
+            // 기존 코드 유지: += 사용
+            player.rotX += e.movementY * sensitivity; 
+            
+            player.rotX = Math.max(-80, Math.min(80, player.rotX));
+        });
+
+        // --- 메인 루프 ---
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isLocked) return;
+
+            const radian = player.rotY * (Math.PI / 180);
+
+            // 이동 계산
+            if (keys.w) { player.velX -= Math.sin(radian); player.velZ -= Math.cos(radian); }
+            if (keys.s) { player.velX += Math.sin(radian); player.velZ += Math.cos(radian); }
+            if (keys.a) { player.velX -= Math.cos(radian); player.velZ += Math.sin(radian); }
+            if (keys.d) { player.velX += Math.cos(radian); player.velZ -= Math.sin(radian); }
+
+            // 물리 적용
+            player.velX *= friction;
+            player.velZ *= friction;
+            player.x += player.velX;
+            player.z += player.velZ;
+
+            // Head Bobbing
+            const speed = Math.sqrt(player.velX**2 + player.velZ**2);
+            if (speed > 0.1) {
+                player.bobTimer += 0.15;
+                player.y = Math.sin(player.bobTimer) * 8;
+            } else {
+                player.bobTimer = 0;
+                player.y *= 0.9;
+            }
+
+            // 화면 렌더링
+            world.style.transform = `translateZ(600px) rotateX(${-player.rotX}deg) rotateY(${-player.rotY}deg) translate3d(${-player.x}px, ${-player.y}px, ${-player.z}px)`;
+        }
+        animate();
+
+    </script>
+</body>
+</html>
