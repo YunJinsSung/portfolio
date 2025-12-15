@@ -3,426 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio | Immersive Gallery</title>
+    <title>EVOLUTION | Digital Art Portfolio</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+
     <style>
+        /* --- CSS 스타일 (기존과 동일하지만 이미지 처리 부분만 변경됨) --- */
         :root {
-            --bg-color: #050505;
-            --accent-color: #00ffcc;
-            --secondary-color: #ff0055;
-            --text-color: #ffffff;
-            --ui-bg: rgba(10, 10, 10, 0.85);
-            --ui-border: 1px solid rgba(255, 255, 255, 0.1);
+            --bg-color: #0a192f;        
+            --text-main: #ccd6f6;       
+            --text-accent: #64ffda;     
+            --card-bg: rgba(17, 34, 64, 0.7); 
+            --nav-bg: rgba(10, 25, 47, 0.85);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        html { scroll-behavior: smooth; }
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Rajdhani', sans-serif;
-            overflow: hidden;
-            user-select: none;
-        }
-
-        /* --- UI Overlay (Intro & Pause Menu) --- */
-        #blocker {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            transition: opacity 0.4s ease;
-        }
-
-        .ui-panel {
-            width: 600px;
-            padding: 40px;
-            background: var(--ui-bg);
-            border: var(--ui-border);
-            border-radius: 16px;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.1);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ui-panel::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 4px;
-            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-        }
-
-        .title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            color: #fff;
-            text-shadow: 0 0 10px var(--accent-color);
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            font-size: 1.2rem;
-            color: #aaa;
-            margin-bottom: 40px;
-            letter-spacing: 2px;
-        }
-
-        /* 조작 가이드 아이콘 */
-        .controls-guide {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .key-row { display: flex; gap: 5px; }
-
-        .key {
-            width: 40px; height: 40px;
-            border: 1px solid #555;
-            border-radius: 6px;
-            background: #1a1a1a;
-            color: var(--accent-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 0 #333;
-        }
-
-        .mouse-icon {
-            width: 30px; height: 46px;
-            border: 2px solid #666;
-            border-radius: 15px;
-            position: relative;
-        }
-        .mouse-icon::after {
-            content: '';
-            position: absolute;
-            top: 8px; left: 50%;
-            width: 4px; height: 8px;
-            background: var(--accent-color);
-            transform: translateX(-50%);
-            border-radius: 2px;
-            animation: scroll-ani 1s infinite;
-        }
-
-        .desc { font-size: 0.9rem; color: #888; margin-top: 5px; }
-
-        /* 버튼 스타일 */
-        .btn {
-            display: inline-block;
-            padding: 15px 40px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            color: #000;
-            background: var(--accent-color);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 0 10px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        .btn:hover {
-            background: #fff;
-            box-shadow: 0 0 20px var(--accent-color);
-            transform: translateY(-2px);
-        }
-
-        .btn.secondary {
-            background: transparent;
-            color: var(--secondary-color);
-            border: 1px solid var(--secondary-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none; 
         }
         
-        .btn.secondary:hover {
-            background: var(--secondary-color);
-            color: #fff;
-            box-shadow: 0 0 20px var(--secondary-color);
+        /* 커서 */
+        .cursor {
+            position: fixed; top: 0; left: 0; width: 15px; height: 15px;
+            background: var(--text-accent); border-radius: 50%; pointer-events: none;
+            z-index: 9999; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s;
+            box-shadow: 0 0 20px var(--text-accent); mix-blend-mode: difference;
+        }
+        .cursor.hovered {
+            width: 50px; height: 50px; background: transparent;
+            border: 2px solid var(--text-accent); box-shadow: none;
         }
 
-        .hidden { display: none !important; }
-
-        /* --- In-Game UI --- */
-        #crosshair {
-            position: fixed;
-            top: 50%; left: 50%;
-            width: 6px; height: 6px;
-            background: var(--accent-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            pointer-events: none;
-            box-shadow: 0 0 8px var(--accent-color);
-            mix-blend-mode: difference;
+        /* 네비게이션 */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 5%; background: var(--nav-bg); backdrop-filter: blur(10px);
+            z-index: 1000; border-bottom: 1px solid rgba(100, 255, 218, 0.1);
         }
+        .logo { font-family: 'Syncopate'; font-weight: 700; color: #fff; text-decoration: none; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-item { color: var(--text-main); text-decoration: none; text-transform: uppercase; font-size: 0.9rem; }
+        .nav-item:hover { color: var(--text-accent); }
 
-        /* --- 3D Scene --- */
-        #scene { width: 100vw; height: 100vh; perspective: 800px; overflow: hidden; }
-        #world { position: absolute; width: 100%; height: 100%; transform-style: preserve-3d; }
+        h1, h2, h3 { font-family: 'Syncopate'; text-transform: uppercase; color: #fff; }
+        .accent-text { color: var(--text-accent); }
+        section { width: 100%; min-height: 100vh; position: relative; }
 
-        .floor {
-            position: absolute;
-            width: 4000px; height: 4000px;
-            background: 
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 100px 100px;
-            transform: translate(-50%, -50%) rotateX(90deg) translateZ(200px);
-            left: 50%; top: 50%;
+        /* 히어로 */
+        #hero {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh; background: radial-gradient(circle at center, #112240 0%, #020c1b 70%); z-index: 10;
         }
+        .hero-title { font-size: 6vw; text-align: center; opacity: 0; transform: translateY(50px); }
+        .hero-subtitle { margin-top: 20px; color: var(--text-accent); letter-spacing: 3px; opacity: 0; }
 
-        .ceiling {
-            position: absolute;
-            width: 4000px; height: 4000px;
-            background: radial-gradient(circle, transparent 20%, #000 80%);
-            transform: translate(-50%, -50%) rotateX(-90deg) translateZ(800px);
-            left: 50%; top: 50%; opacity: 0.5;
+        /* 1학기 작품 */
+        #human-art { padding: 150px 10%; background-color: #0a192f; z-index: 20; }
+        .section-intro { margin-bottom: 60px; border-left: 3px solid var(--text-accent); padding-left: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .grid-item {
+            background: var(--card-bg); border-radius: 8px; overflow: hidden;
+            height: 400px; position: relative;
         }
+        /* 이미지 태그 스타일링 (변경됨) */
+        .img-content {
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;
+        }
+        .interactable:hover .img-content { transform: scale(1.1); }
 
-        /* 작품 프레임 */
-        .art-frame {
-            position: absolute;
-            left: 50%; top: 50%;
-            width: 300px; height: 450px;
-            background: #0f0f0f;
-            border: 1px solid #333;
-            transform-style: preserve-3d;
-            transition: all 0.3s;
+        .grid-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            opacity: 0; transition: opacity 0.3s;
         }
-        .art-frame:hover { border-color: var(--accent-color); box-shadow: 0 0 30px rgba(0, 255, 204, 0.3); }
-        .art-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .grid-item:hover .grid-overlay { opacity: 1; }
+
+        /* 2학기 AI 갤러리 */
+        #gallery-container { position: relative; z-index: 5; overflow: hidden; height: 100vh; }
+        #gallery-wrapper {
+            width: 600%; height: 100vh; display: flex; flex-wrap: nowrap;
+            background: linear-gradient(to right, #0a192f, #112240, #0a192f);
+        }
+        .gallery-intro { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; text-align: center; }
         
-        .art-frame.video-frame { width: 600px; height: 340px; }
+        .art-piece { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; flex-shrink: 0; perspective: 1000px; }
+        .art-card {
+            width: 400px; height: 600px; background: var(--card-bg);
+            border: 1px solid rgba(100, 255, 218, 0.1); border-radius: 12px;
+            display: flex; flex-direction: column; overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+        /* 카드 내부 이미지 영역 */
+        .art-img-wrapper { flex: 1; overflow: hidden; position: relative; }
+        .art-info { padding: 20px; background: rgba(10,25,47,0.95); }
+        .art-title { font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
 
-        .art-info {
-            position: absolute; bottom: -50px; left: 0; width: 100%;
-            text-align: center; color: #fff; font-size: 0.9rem;
-            text-shadow: 0 2px 4px #000;
-        }
+        /* 영상 섹션 */
+        #video-section { background-color: #020c1b; padding: 150px 10%; position: relative; z-index: 50; box-shadow: 0 -30px 50px rgba(0,0,0,0.5); }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 40px; }
+        .video-item { aspect-ratio: 16/9; background: #112240; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; }
+        .video-title { position: absolute; bottom: 20px; left: 20px; font-family: 'Syncopate'; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
 
-        /* 배치 좌표 */
-        .title-obj { 
-            transform: translate(-50%, -50%) translateZ(-500px); 
-            color: #fff; text-align: center; 
-        }
-        .title-obj h2 { 
-            font-family: 'Orbitron'; font-size: 4rem; 
-            text-shadow: 0 0 20px rgba(255,255,255,0.3);
-        }
-        
-        #art1 { transform: translate(-50%, -50%) translate3d(-400px, 0, -1000px) rotateY(20deg); }
-        #art2 { transform: translate(-50%, -50%) translate3d(400px, 0, -1500px) rotateY(-20deg); }
-        #art3 { transform: translate(-50%, -50%) translate3d(-400px, 0, -2000px) rotateY(20deg); }
-        #art-video { 
-            transform: translate(-50%, -50%) translate3d(0, 0, -2800px);
-        }
-
-        /* 애니메이션 */
-        @keyframes scroll-ani {
-            0% { top: 8px; opacity: 1; }
-            100% { top: 18px; opacity: 0; }
-        }
-
+        footer { position: relative; z-index: 60; padding: 50px; text-align: center; background: #000; color: #555; }
     </style>
 </head>
 <body>
+    <div class="cursor"></div>
 
-    <div id="blocker">
-        <div class="ui-panel">
-            <h1 class="title">My Portfolio</h1>
-            <p class="subtitle" id="status-text">IMMERSIVE AI EXHIBITION</p>
+    <nav>
+        <a href="#hero" class="logo interactable">MY PORTFOLIO</a>
+        <div class="nav-links">
+            <a href="#human-art" class="nav-item interactable">The Origin</a>
+            <a href="#gallery-container" class="nav-item interactable">My AI Characters</a>
+            <a href="#video-section" class="nav-item interactable">The Vision</a>
+        </div>
+    </nav>
 
-            <div class="controls-guide">
-                <div class="control-group">
-                    <div class="key-row">
-                        <div class="key">W</div>
+    <section id="hero">
+        <h1 class="hero-title">ARTISTIC<br><span class="accent-text">EVOLUTION</span></h1>
+        <p class="hero-subtitle">FROM HUMAN TOUCH TO AI GENERATION</p>
+    </section>
+
+    <section id="human-art">
+        <div class="section-intro">
+            <h2>THE ORIGIN</h2>
+            <p>1학기 기초 디자인 프로젝트. 순수 창작의 기록.</p>
+        </div>
+        <div class="grid-container">
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+01" class="img-content" alt="Art 1">
+                <div class="grid-overlay"><h3>Basic Drawing</h3><p>Pencil on Paper</p></div>
+            </div>
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+02" class="img-content" alt="Art 2">
+                <div class="grid-overlay"><h3>Color Theory</h3><p>Acrylic Painting</p></div>
+            </div>
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+03" class="img-content" alt="Art 3">
+                <div class="grid-overlay"><h3>Typography</h3><p>Digital Graphic</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="gallery-container">
+        <div id="gallery-wrapper">
+            <div class="gallery-intro">
+                <h2>MY<br><span class="accent-text">AI Characters</span></h2>
+                <p style="margin-top:20px; color:#8892b0;">AI와의 협업을 통해 확장된 세계관</p>
+            </div>
+            
+            <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="./char1.png" class="img-content" alt="AI Character 1" onerror="this.src='https://placehold.co/400x600/112240/64ffda?text=Image+Not+Found'">
                     </div>
-                    <div class="key-row">
-                        <div class="key">A</div>
-                        <div class="key">S</div>
-                        <div class="key">D</div>
-                    </div>
-                    <span class="desc">MOVE</span>
-                </div>
-
-                <div class="control-group" style="justify-content: flex-end;">
-                    <div class="mouse-icon"></div>
-                    <span class="desc">LOOK</span>
-                </div>
-
-                <div class="control-group" style="justify-content: flex-end;">
-                    <div class="key" style="width: 50px;">ESC</div>
-                    <span class="desc">EXIT</span>
+                    <div class="art-info"><h3 class="art-title">유성</h3><p class="art-desc">1st Character Design</p></div>
                 </div>
             </div>
-
-            <div id="btn-container">
-                <button class="btn" id="start-btn">ENTER GALLERY</button>
-                <button class="btn hidden" id="resume-btn">RESUME</button>
-                <button class="btn secondary hidden" id="restart-btn" onclick="location.reload()">SYSTEM RESTART</button>
+            
+            <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="./char2.png" class="img-content" alt="AI Character 2" onerror="this.src='https://placehold.co/400x600/112240/64ffda?text=Image+Not+Found'">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Ash Calder</h3><p class="art-desc">2nd Character Design</p></div>
+                </div>
+            </div>
+            
+            <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+03" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 03</h3><p class="art-desc">Concept Variation</p></div>
+                </div>
+            </div>
+             <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+04" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 04</h3><p class="art-desc">Background Art</p></div>
+                </div>
+            </div>
+             <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+05" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 05</h3><p class="art-desc">Final Composition</p></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="crosshair"></div>
-
-    <div id="scene">
-        <div id="world">
-            <div class="floor"></div>
-            <div class="ceiling"></div>
-
-            <div class="title-obj">
-                <h2>My Portfolio</h2>
-                <p>Use WASD + Mouse to Explore</p>
-            </div>
-
-            <div class="art-frame" id="art1">
-                <img src="https://placehold.co/300x450/111/00ffcc?text=AI+01" class="art-img">
-                <div class="art-info">CYBER PUNK</div>
-            </div>
-            <div class="art-frame" id="art2">
-                <img src="https://placehold.co/300x450/222/ff0055?text=AI+02" class="art-img">
-                <div class="art-info">NEON SOUL</div>
-            </div>
-            <div class="art-frame" id="art3">
-                <img src="https://placehold.co/300x450/111/ffff00?text=AI+03" class="art-img">
-                <div class="art-info">DATA FLOW</div>
-            </div>
-
-            <div class="art-frame video-frame" id="art-video">
-                <img src="https://placehold.co/600x340/000/fff?text=Ad+Screen" class="art-img">
-                </div>
+    <section id="video-section">
+        <div class="section-intro" style="text-align: right; border-left:none; border-right: 3px solid var(--text-accent); padding-right:20px;">
+            <h2>THE VISION</h2>
+            <p style="margin-left: auto;">AI 모션 그래픽과 광고 영상</p>
         </div>
-    </div>
+        <div class="video-grid">
+            <div class="video-item interactable">
+                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+01" class="img-content">
+                <div class="video-title">Future Commercial</div>
+            </div>
+            <div class="video-item interactable">
+                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+02" class="img-content">
+                <div class="video-title">Brand Identity</div>
+            </div>
+            <div class="video-item interactable">
+                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+03" class="img-content">
+                <div class="video-title">Product Teaser</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Kyungsung University Dept. of Design</p>
+        <p>© 2024 Your Name. All Rights Reserved.</p>
+    </footer>
 
     <script>
-        // --- 설정 ---
-        const friction = 0.85;     
-        const sensitivity = 0.12;  
-        
-        const player = { x: 0, y: 0, z: 400, rotX: 0, rotY: 0, velX: 0, velZ: 0, bobTimer: 0 };
-        const keys = { w: false, a: false, s: false, d: false };
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-        // --- DOM Elements ---
-        const blocker = document.getElementById('blocker');
-        const startBtn = document.getElementById('start-btn');
-        const resumeBtn = document.getElementById('resume-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const statusText = document.getElementById('status-text');
-        const world = document.getElementById('world');
-
-        let isLocked = false;
-        let hasStarted = false;
-
-        // --- 포인터 락 제어 ---
-        function lockPointer() {
-            document.body.requestPointerLock();
-        }
-
-        startBtn.addEventListener('click', lockPointer);
-        resumeBtn.addEventListener('click', lockPointer);
-
-        document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement === document.body) {
-                // 게임 진행 중
-                isLocked = true;
-                hasStarted = true;
-                blocker.style.opacity = '0';
-                setTimeout(() => blocker.style.display = 'none', 400);
-            } else {
-                // 일시 정지 (ESC 누름)
-                isLocked = false;
-                blocker.style.display = 'flex';
-                requestAnimationFrame(() => blocker.style.opacity = '1');
-                
-                if (hasStarted) {
-                    statusText.innerText = "SYSTEM PAUSED";
-                    startBtn.classList.add('hidden');
-                    resumeBtn.classList.remove('hidden');
-                    restartBtn.classList.remove('hidden');
-                }
-            }
+        // 네비게이션
+        document.querySelectorAll('.nav-item, .logo').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                gsap.to(window, {duration: 1, scrollTo: targetId, ease: "power2.out"});
+            });
         });
 
-        // --- 입력 처리 ---
-        document.addEventListener('keydown', (e) => {
-            const key = e.code.toLowerCase().replace('key', '');
-            if (keys.hasOwnProperty(key)) keys[key] = true;
-        });
-        document.addEventListener('keyup', (e) => {
-            const key = e.code.toLowerCase().replace('key', '');
-            if (keys.hasOwnProperty(key)) keys[key] = false;
-        });
-
-        // --- 마우스 시선 (Y축 반전 적용됨) ---
+        // 커서
+        const cursor = document.querySelector('.cursor');
+        const interactables = document.querySelectorAll('.interactable');
         document.addEventListener('mousemove', (e) => {
-            if (!isLocked) return;
-            player.rotY -= e.movementX * sensitivity;
-            
-            // Y축 반전: 마우스를 위로 올리면(음수) rotX를 더해서 시선이 아래로?
-            // 요청사항: 위, 아래 볼때 마우스 방향 바뀜 (Inverted Y)
-            // 기존 코드 유지: += 사용
-            player.rotX += e.movementY * sensitivity; 
-            
-            player.rotX = Math.max(-80, Math.min(80, player.rotX));
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        });
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // --- 메인 루프 ---
-        function animate() {
-            requestAnimationFrame(animate);
-            if (!isLocked) return;
+        // 애니메이션
+        const tlHero = gsap.timeline();
+        tlHero.to('.hero-title', { opacity: 1, y: 0, duration: 1.5, ease: "power4.out", delay: 0.3 })
+              .to('.hero-subtitle', { opacity: 1, duration: 1, delay: -0.8 });
 
-            const radian = player.rotY * (Math.PI / 180);
+        gsap.utils.toArray('.grid-item').forEach((item, i) => {
+            gsap.from(item, {
+                y: 50, opacity: 0, duration: 0.8, delay: i * 0.1,
+                scrollTrigger: { trigger: "#human-art", start: "top 70%" }
+            });
+        });
 
-            // 이동 계산
-            if (keys.w) { player.velX -= Math.sin(radian); player.velZ -= Math.cos(radian); }
-            if (keys.s) { player.velX += Math.sin(radian); player.velZ += Math.cos(radian); }
-            if (keys.a) { player.velX -= Math.cos(radian); player.velZ += Math.sin(radian); }
-            if (keys.d) { player.velX += Math.cos(radian); player.velZ -= Math.sin(radian); }
-
-            // 물리 적용
-            player.velX *= friction;
-            player.velZ *= friction;
-            player.x += player.velX;
-            player.z += player.velZ;
-
-            // Head Bobbing
-            const speed = Math.sqrt(player.velX**2 + player.velZ**2);
-            if (speed > 0.1) {
-                player.bobTimer += 0.15;
-                player.y = Math.sin(player.bobTimer) * 8;
-            } else {
-                player.bobTimer = 0;
-                player.y *= 0.9;
+        const galleryWrapper = document.getElementById("gallery-wrapper");
+        ScrollTrigger.matchMedia({
+            "(min-width: 768px)": function() {
+                gsap.to(galleryWrapper, {
+                    x: () => -(galleryWrapper.scrollWidth - document.documentElement.clientWidth) + "px",
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: "#gallery-container", pin: true, scrub: 1,
+                        end: () => "+=" + galleryWrapper.scrollWidth, invalidateOnRefresh: true,
+                    }
+                });
             }
+        });
 
-            // 화면 렌더링
-            world.style.transform = `translateZ(600px) rotateX(${-player.rotX}deg) rotateY(${-player.rotY}deg) translate3d(${-player.x}px, ${-player.y}px, ${-player.z}px)`;
-        }
-        animate();
+        gsap.utils.toArray('.art-card').forEach(card => {
+            gsap.fromTo(card, { rotationY: -25, opacity: 0 },
+                { rotationY: 0, opacity: 1, duration: 1,
+                    scrollTrigger: {
+                        trigger: card, containerAnimation: gsap.getTweensOf(galleryWrapper)[0],
+                        start: "left 80%",
+                    }
+                }
+            )
+        });
 
+        gsap.from(".video-item", {
+            y: 50, opacity: 0, stagger: 0.2, duration: 1,
+            scrollTrigger: { trigger: "#video-section", start: "top 70%" }
+        });
     </script>
 </body>
 </html>
