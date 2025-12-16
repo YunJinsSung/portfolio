@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVOLUTION | Digital Art Portfolio</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL STYLES --- */
+        :root {
+            --bg-color: #0f0f0f;       
+            --text-main: #e0e0e0;       
+            --text-accent: #FFD700;     
+            --glow-color: rgba(255, 215, 0, 0.3); 
+            --card-bg: rgba(30, 30, 30, 0.8); 
+            --nav-bg: rgba(15, 15, 15, 0.9);
+            --lamp-shade-dark: #FF6B6B;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            cursor: none; 
+        }
+
+        /* --- CUSTOM CURSOR --- */
+        .cursor {
+            position: fixed; top: 0; left: 0; 
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(255, 220, 100, 0.15) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%; pointer-events: none; z-index: 9999; 
+            transform: translate(-50%, -50%); mix-blend-mode: screen;
+            transition: width 0.3s, height 0.3s;
+        }
+        .cursor::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            width: 8px; height: 8px; background: var(--text-accent);
+            border-radius: 50%; transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--text-accent);
+        }
+        .cursor.hovered {
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.4) 0%, rgba(255,255,255,0) 70%);
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 5%; background: var(--nav-bg); backdrop-filter: blur(10px);
+            z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo { font-family: 'Syncopate'; font-weight: 700; color: #fff; text-decoration: none; letter-spacing: 2px; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-item { color: var(--text-main); text-decoration: none; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s; }
+        .nav-item:hover { color: var(--text-accent); text-shadow: 0 0 10px var(--text-accent); }
+
+        /* --- TOP CENTER RETURN BUTTON --- */
+        .top-return-btn {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1001;
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(0,0,0,0.6); padding: 8px 20px; border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2); text-decoration: none;
+            transition: all 0.3s; backdrop-filter: blur(5px);
+        }
+        .top-return-btn:hover {
+            border-color: var(--lamp-shade-dark);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+            background: rgba(20,20,20,0.9);
+        }
+        .btn-icon {
+            width: 12px; height: 12px; background: #fff;
+            border-radius: 50% 50% 0 0; position: relative;
+        }
+        .btn-icon::after {
+            content:''; position: absolute; bottom: -4px; left: 2px;
+            width: 8px; height: 4px; background: #FFD700;
+        }
+        .btn-label { font-family: 'Syncopate'; font-size: 0.7rem; color: #fff; font-weight: 700; }
+
+
+        /* --- HERO SECTION --- */
+        #hero {
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            height: 100vh;
+            background: radial-gradient(circle at center, #2a2a2a 0%, #000000 80%);
+            z-index: 10; overflow: hidden;
+        }
+        .hero-title {
+            font-family: 'Syncopate'; font-size: 5vw; text-align: center;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            margin-bottom: 40px; z-index: 20;
+        }
+        .accent-text { color: var(--text-accent); text-shadow: 0 0 20px var(--glow-color); }
+        
+        .scroll-hint {
+            position: absolute; bottom: 30px;
+            color: #666; font-size: 0.8rem; letter-spacing: 3px;
+            animation: bounce 2s infinite;
+        }
+
+        /* --- LAMP CHARACTER --- */
+        .lamp-wrapper { position: relative; z-index: 15; transform: scale(1.2); }
+        .lamp-wire { width: 4px; height: 80px; background: #333; margin: 0 auto; }
+        
+        .lamp-shade {
+            width: 160px; height: 110px;
+            background: var(--lamp-shade-dark);
+            border-radius: 80px 80px 15px 15px;
+            position: relative; z-index: 2;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 0 50px rgba(255, 107, 107, 0.4), inset 0 -10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .face {
+            position: relative; width: 90px; height: 50px;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 10px;
+        }
+        .eye {
+            width: 24px; height: 24px; background: #fff; border-radius: 50%;
+            position: relative; overflow: hidden; height: 20px; transition: height 0.2s;
+        }
+        .pupil {
+            width: 10px; height: 10px; background: #000; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); transition: transform 0.05s linear;
+        }
+        .mouth {
+            position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+            width: 20px; height: 10px; border-radius: 0 0 20px 20px;
+            background: #fff; opacity: 0.9;
+            transition: all 0.2s;
+        }
+
+        /* [상태별 표정 - CSS] */
+        body.moving-fast .mouth {
+            width: 15px; height: 15px; border-radius: 50%; bottom: 8px; /* 'O' 모양 */
+        }
+        body.moving-fast .eye { height: 24px; } 
+
+        .lamp-shade.dizzy .eye { height: 24px; }
+        .lamp-shade.dizzy .pupil {
+            top: 50% !important; left: 50% !important; margin: -5px 0 0 -5px;
+            background: transparent; border: 2px solid #000; border-right-color: transparent;
+            width: 14px; height: 14px; animation: spin 0.5s linear infinite;
+        }
+        .lamp-shade.dizzy .mouth {
+            width: 30px; height: 2px; background: #fff; border-radius: 0;
+            transform: translateX(-50%) rotate(10deg);
+        }
+        .sweat {
+            position: absolute; top: -30px; right: -10px; color: #00ffff;
+            font-size: 1.5rem; opacity: 0; pointer-events: none;
+        }
+        .lamp-shade.dizzy .sweat { opacity: 1; animation: bounce 1s infinite; }
+
+        .lamp-bulb {
+            width: 70px; height: 35px; background: #fff;
+            border-radius: 0 0 35px 35px; margin: 0 auto;
+            position: relative; z-index: 1; 
+            box-shadow: 0 20px 80px rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+
+        /* --- CONTENT SECTIONS --- */
+        h2, h3 { font-family: 'Syncopate'; text-transform: uppercase; color: #fff; }
+        section { width: 100%; min-height: 100vh; position: relative; }
+
+        #human-art { padding: 150px 10%; background-color: #0f0f0f; z-index: 20; }
+        .section-intro { margin-bottom: 60px; border-left: 3px solid var(--text-accent); padding-left: 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .grid-item { background: var(--card-bg); border-radius: 8px; overflow: hidden; height: 400px; position: relative; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .grid-item:hover { transform: translateY(-10px); box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2); border-color: var(--text-accent); }
+        .img-content { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; filter: grayscale(100%); }
+        .grid-item:hover .img-content { transform: scale(1.1); filter: grayscale(0%); }
+        .grid-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity: 0; transition: opacity 0.3s; }
+        .grid-item:hover .grid-overlay { opacity: 1; }
+
+        #gallery-container { position: relative; z-index: 5; overflow: hidden; height: 100vh; }
+        #gallery-wrapper { width: 600%; height: 100vh; display: flex; flex-wrap: nowrap; background: #0f0f0f; }
+        .gallery-intro { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; text-align: center; }
+        .art-piece { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; flex-shrink: 0; perspective: 1000px; }
+        .art-card { width: 400px; height: 600px; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(5px); transition: all 0.5s ease; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .art-card:hover { border-color: var(--text-accent); box-shadow: 0 0 30px var(--glow-color), 0 0 10px var(--text-accent) inset; transform: scale(1.02) translateY(-10px); }
+        .art-img-wrapper { flex: 1; overflow: hidden; position: relative; }
+        .art-info { padding: 20px; background: rgba(10,10,10,0.95); border-top: 1px solid rgba(255,255,255,0.1); }
+        .art-title { font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
+
+        #video-section { background-color: #0a0a0a; padding: 150px 10%; position: relative; z-index: 50; box-shadow: 0 -30px 50px rgba(0,0,0,0.8); }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 40px; }
+        .video-item { aspect-ratio: 16/9; background: #1a1a1a; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid transparent; transition: all 0.3s; }
+        .video-item:hover { border-color: var(--text-accent); box-shadow: 0 0 30px rgba(255, 107, 107, 0.3); transform: scale(1.02); }
+        .video-title { position: absolute; bottom: 20px; left: 20px; font-family: 'Syncopate'; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+
+        footer { position: relative; z-index: 60; padding: 50px; text-align: center; background: #000; color: #555; border-top: 1px solid #222; }
+
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+
+    <nav>
+        <a href="#hero" class="logo interactable">MY PORTFOLIO</a>
+        <div class="nav-links">
+            <a href="#human-art" class="nav-item interactable">The Origin</a>
+            <a href="#gallery-container" class="nav-item interactable">My AI Characters</a>
+            <a href="#video-section" class="nav-item interactable">The Vision</a>
+        </div>
+    </nav>
+
+    <a href="index.html" class="top-return-btn interactable">
+        <div class="btn-icon"></div>
+        <span class="btn-label">BACK TO LAMP</span>
+    </a>
+
+    <section id="hero">
+        <h1 class="hero-title">MY PORTFOLIO<br><span class="accent-text">EVOLUTION</span></h1>
+        
+        <div class="lamp-wrapper">
+            <div class="lamp-wire"></div>
+            <div class="lamp-shade" id="lampShade">
+                <div class="sweat">💦</div>
+                <div class="face">
+                    <div class="eye left"><div class="pupil"></div></div>
+                    <div class="eye right"><div class="pupil"></div></div>
+                    <div class="mouth" id="lampMouth"></div>
+                </div>
+            </div>
+            <div class="lamp-bulb"></div>
+        </div>
+
+        <div class="scroll-hint">SCROLL DOWN TO EXPLORE</div>
+    </section>
+
+    <section id="human-art">
+        <div class="section-intro">
+            <h2>THE ORIGIN</h2>
+            <p>1학기 기초 디자인 프로젝트.</p>
+        </div>
+        <div class="grid-container">
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/333/FFF?text=Art+01" class="img-content">
+                <div class="grid-overlay"><h3>Basic Drawing</h3><p>Pencil</p></div>
+            </div>
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/333/FFF?text=Art+02" class="img-content">
+                <div class="grid-overlay"><h3>Color Theory</h3><p>Acrylic</p></div>
+            </div>
+            <div class="grid-item interactable">
+                <img src="https://placehold.co/400x600/333/FFF?text=Art+03" class="img-content">
+                <div class="grid-overlay"><h3>Typography</h3><p>Digital</p></div>
+            </div>
+        </div>
+    </section>
+
+    <div id="gallery-container">
+        <div id="gallery-wrapper">
+            <div class="gallery-intro">
+                <h2>MY<br><span class="accent-text">AI Characters</span></h2>
+            </div>
+            
+            <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="./char1.png" class="img-content" alt="Character 1" onerror="this.src='https://placehold.co/400x600/1a1a1a/FFD700?text=No+Image'">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">유성</h3><p class="art-desc">1st Character</p></div>
+                </div>
+            </div>
+             <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="./char2.png" class="img-content" alt="Character 2" onerror="this.src='https://placehold.co/400x600/1a1a1a/FFD700?text=No+Image'">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Ash Calder</h3><p class="art-desc">2nd Character</p></div>
+                </div>
+            </div>
+             <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+3" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 03</h3><p class="art-desc">Variation</p></div>
+                </div>
+            </div>
+            <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+4" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 04</h3><p class="art-desc">Background</p></div>
+                </div>
+            </div>
+             <div class="art-piece">
+                <div class="art-card interactable">
+                    <div class="art-img-wrapper">
+                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+5" class="img-content">
+                    </div>
+                    <div class="art-info"><h3 class="art-title">Persona 05</h3><p class="art-desc">Final</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section id="video-section">
+        <div class="section-intro" style="text-align: right; border-right: 3px solid var(--text-accent); padding-right:20px;">
+            <h2>THE VISION</h2>
+            <p>AI Motion Graphics</p>
+        </div>
+        <div class="video-grid">
+            <div class="video-item interactable">
+                <img src="https://placehold.co/600x400/1a1a1a/FF6B6B?text=Video+01" class="img-content">
+                <div class="video-title">Future Commercial</div>
+            </div>
+            <div class="video-item interactable">
+                <img src="https://placehold.co/600x400/1a1a1a/FF6B6B?text=Video+02" class="img-content">
+                <div class="video-title">Brand Identity</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Your Name. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        // 1. 램프 로직 (눈알 굴리기 + 기절)
+        const lampShade = document.getElementById('lampShade');
+        const pupils = document.querySelectorAll('.pupil');
+        const mouth = document.getElementById('lampMouth');
+        const body = document.body;
+        
+        let mouseX = 0, mouseY = 0;
+        let lastMouseX = 0, lastMouseY = 0;
+        let mouseSpeed = 0;
+        let isDizzy = false;
+        let dizzyTimeout;
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDizzy) return;
+
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            // 속도 계산
+            const dx = mouseX - lastMouseX;
+            const dy = mouseY - lastMouseY;
+            mouseSpeed = Math.sqrt(dx*dx + dy*dy);
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+
+            // 기절 감도 (800)
+            if (mouseSpeed > 800) {
+                goDizzy();
+            } else {
+                // 표정 변화
+                if (mouseSpeed > 50) {
+                    body.classList.add('moving-fast'); 
+                } else {
+                    body.classList.remove('moving-fast'); 
+                }
+                moveFace(mouseX, mouseY);
+            }
+        });
+
+        function moveFace(mx, my) {
+            pupils.forEach(pupil => {
+                const rect = pupil.parentElement.getBoundingClientRect();
+                const eyeCenterX = rect.left + rect.width / 2;
+                const eyeCenterY = rect.top + rect.height / 2;
+                
+                const angle = Math.atan2(my - eyeCenterY, mx - eyeCenterX);
+                const distance = Math.min(5, Math.hypot(mx - eyeCenterX, my - eyeCenterY) / 10);
+                
+                const moveX = Math.cos(angle) * distance;
+                const moveY = Math.sin(angle) * distance;
+                
+                pupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
+            });
+
+            // 입도 살짝 움직여서 입체감
+            const mouthRect = mouth.parentElement.getBoundingClientRect();
+            const mouthCX = mouthRect.left + mouthRect.width / 2;
+            const mouthCY = mouthRect.top + mouthRect.height / 2;
+            const mDistX = (mx - mouthCX) / 30; 
+            const mDistY = (my - mouthCY) / 30;
+            
+            const clampX = Math.max(-5, Math.min(5, mDistX));
+            const clampY = Math.max(-2, Math.min(5, mDistY));
+            
+            mouth.style.transform = `translateX(calc(-50% + ${clampX}px)) translateY(${clampY}px)`;
+        }
+
+        function goDizzy() {
+            if (isDizzy) return;
+            isDizzy = true;
+            lampShade.classList.add('dizzy');
+            body.classList.remove('moving-fast');
+            
+            clearTimeout(dizzyTimeout);
+            // 기절 시간 3초
+            dizzyTimeout = setTimeout(() => {
+                isDizzy = false;
+                lampShade.classList.remove('dizzy');
+                mouth.style.transform = `translateX(-50%)`;
+            }, 3000);
+        }
+
+        // 2. 포트폴리오 스크롤 애니메이션
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // 커서 로직
+        const cursor = document.querySelector('.cursor');
+        gsap.set(cursor, {xPercent: -50, yPercent: -50});
+        window.addEventListener('mousemove', e => {
+            gsap.to(cursor, {x: e.clientX, y: e.clientY, duration: 0.3, ease: "power2.out"});
+        });
+        document.querySelectorAll('.interactable').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+        });
+
+        // 네비게이션 스크롤 (탑 버튼 제외)
+        document.querySelectorAll('.nav-item, .logo').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                gsap.to(window, {duration: 1.5, scrollTo: targetId, ease: "power2.inOut"});
+            });
+        });
+
+        // 작품 애니메이션
+        gsap.utils.toArray('.grid-item').forEach((item, i) => {
+            gsap.from(item, {
+                y: 50, opacity: 0, duration: 0.8, delay: i * 0.1,
+                scrollTrigger: { trigger: "#human-art", start: "top 80%" }
+            });
+        });
+
+        // 가로 스크롤
+        const galleryWrapper = document.getElementById("gallery-wrapper");
+        ScrollTrigger.matchMedia({
+            "(min-width: 768px)": function() {
+                gsap.to(galleryWrapper, {
+                    x: () => -(galleryWrapper.scrollWidth - document.documentElement.clientWidth) + "px",
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: "#gallery-container", pin: true, scrub: 1,
+                        end: () => "+=" + galleryWrapper.scrollWidth, invalidateOnRefresh: true,
+                    }
+                });
+            }
+        });
+
+        // 3D 카드
+        gsap.utils.toArray('.art-card').forEach(card => {
+            gsap.fromTo(card, { rotationY: -25, opacity: 0 },
+                { rotationY: 0, opacity: 1, duration: 1,
+                    scrollTrigger: {
+                        trigger: card, containerAnimation: gsap.getTweensOf(galleryWrapper)[0],
+                        start: "left 80%",
+                    }
+                }
+            )
+        });
+
+        // 영상 섹션
+        gsap.from(".video-item", {
+            y: 50, opacity: 0, stagger: 0.2, duration: 1,
+            scrollTrigger: { trigger: "#video-section", start: "top 80%" }
+        });
+
+    </script>
+</body>
+</html>

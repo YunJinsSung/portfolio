@@ -3,300 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVOLUTION | Digital Art Portfolio</title>
+    <title>램프를 당겨주세요</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Syncopate:wght@700&display=swap" rel="stylesheet">
-
     <style>
-        /* --- CSS 스타일 (기존과 동일하지만 이미지 처리 부분만 변경됨) --- */
+        /* --- 기본 설정 --- */
         :root {
-            --bg-color: #0a192f;        
-            --text-main: #ccd6f6;       
-            --text-accent: #64ffda;     
-            --card-bg: rgba(17, 34, 64, 0.7); 
-            --nav-bg: rgba(10, 25, 47, 0.85);
+            --bg-dark: #111;
+            --bg-light: #f4f4f4;
+            --lamp-shade-dark: #444;
+            --lamp-shade-light: #FF6B6B;
+            --string-color: #888;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            cursor: none; 
-        }
-        
-        /* 커서 */
-        .cursor {
-            position: fixed; top: 0; left: 0; width: 15px; height: 15px;
-            background: var(--text-accent); border-radius: 50%; pointer-events: none;
-            z-index: 9999; transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s;
-            box-shadow: 0 0 20px var(--text-accent); mix-blend-mode: difference;
-        }
-        .cursor.hovered {
-            width: 50px; height: 50px; background: transparent;
-            border: 2px solid var(--text-accent); box-shadow: none;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: 'Syncopate', sans-serif;
+            transition: background-color 0.5s ease;
+            user-select: none;
         }
 
-        /* 네비게이션 */
-        nav {
-            position: fixed; top: 0; width: 100%; height: 80px;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 5%; background: var(--nav-bg); backdrop-filter: blur(10px);
-            z-index: 1000; border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        body.light-on {
+            background-color: var(--bg-light);
         }
-        .logo { font-family: 'Syncopate'; font-weight: 700; color: #fff; text-decoration: none; }
-        .nav-links { display: flex; gap: 40px; }
-        .nav-item { color: var(--text-main); text-decoration: none; text-transform: uppercase; font-size: 0.9rem; }
-        .nav-item:hover { color: var(--text-accent); }
 
-        h1, h2, h3 { font-family: 'Syncopate'; text-transform: uppercase; color: #fff; }
-        .accent-text { color: var(--text-accent); }
-        section { width: 100%; min-height: 100vh; position: relative; }
-
-        /* 히어로 */
-        #hero {
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            height: 100vh; background: radial-gradient(circle at center, #112240 0%, #020c1b 70%); z-index: 10;
+        /* --- 1. 램프 캐릭터 (왼쪽 배치) --- */
+        .lamp-wrapper {
+            position: absolute;
+            top: 0;
+            left: 20%;
+            transform: translateX(-50%);
+            z-index: 10;
         }
-        .hero-title { font-size: 6vw; text-align: center; opacity: 0; transform: translateY(50px); }
-        .hero-subtitle { margin-top: 20px; color: var(--text-accent); letter-spacing: 3px; opacity: 0; }
 
-        /* 1학기 작품 */
-        #human-art { padding: 150px 10%; background-color: #0a192f; z-index: 20; }
-        .section-intro { margin-bottom: 60px; border-left: 3px solid var(--text-accent); padding-left: 20px; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-        .grid-item {
-            background: var(--card-bg); border-radius: 8px; overflow: hidden;
-            height: 400px; position: relative;
+        .lamp-wire {
+            width: 4px; height: 150px; background: #333; margin: 0 auto;
         }
-        /* 이미지 태그 스타일링 (변경됨) */
-        .img-content {
-            width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;
-        }
-        .interactable:hover .img-content { transform: scale(1.1); }
 
-        .grid-overlay {
-            position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            opacity: 0; transition: opacity 0.3s;
+        /* 갓 (얼굴 본체) */
+        .lamp-shade {
+            width: 140px; height: 100px;
+            background: var(--lamp-shade-dark);
+            border-radius: 70px 70px 10px 10px;
+            position: relative; z-index: 2;
+            transition: background 0.3s;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5);
         }
-        .grid-item:hover .grid-overlay { opacity: 1; }
 
-        /* 2학기 AI 갤러리 */
-        #gallery-container { position: relative; z-index: 5; overflow: hidden; height: 100vh; }
-        #gallery-wrapper {
-            width: 600%; height: 100vh; display: flex; flex-wrap: nowrap;
-            background: linear-gradient(to right, #0a192f, #112240, #0a192f);
+        body.light-on .lamp-shade {
+            background: var(--lamp-shade-light);
+            box-shadow: 0 0 50px rgba(255, 107, 107, 0.6);
         }
-        .gallery-intro { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; text-align: center; }
-        
-        .art-piece { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; flex-shrink: 0; perspective: 1000px; }
-        .art-card {
-            width: 400px; height: 600px; background: var(--card-bg);
-            border: 1px solid rgba(100, 255, 218, 0.1); border-radius: 12px;
-            display: flex; flex-direction: column; overflow: hidden;
-            backdrop-filter: blur(5px);
+
+        /* 표정 컨테이너 */
+        .face {
+            position: relative; width: 80px; height: 45px; /* 높이 약간 증가 */
         }
-        /* 카드 내부 이미지 영역 */
-        .art-img-wrapper { flex: 1; overflow: hidden; position: relative; }
-        .art-info { padding: 20px; background: rgba(10,25,47,0.95); }
-        .art-title { font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
 
-        /* 영상 섹션 */
-        #video-section { background-color: #020c1b; padding: 150px 10%; position: relative; z-index: 50; box-shadow: 0 -30px 50px rgba(0,0,0,0.5); }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 40px; }
-        .video-item { aspect-ratio: 16/9; background: #112240; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; }
-        .video-title { position: absolute; bottom: 20px; left: 20px; font-family: 'Syncopate'; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        /* 눈/입 공통 스타일 및 트랜지션 */
+        .eye, .mouth {
+            position: absolute;
+            transition: all 0.2s ease-in-out; /* 부드러운 표정 변화 */
+        }
 
-        footer { position: relative; z-index: 60; padding: 50px; text-align: center; background: #000; color: #555; }
+        /* ================== [표정 상태 정의] ================== */
+
+        /* [상태 1: 자는 표정 (기본 OFF)] - Zzz... */
+        .eye {
+            top: 20px; width: 18px; height: 2px; background: #aaa; border-radius: 2px;
+        }
+        .eye.left { left: 12px; }
+        .eye.right { right: 12px; }
+
+        .mouth {
+            bottom: 8px; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 10px;
+            border: 2px solid #aaa; border-radius: 50%; background: transparent;
+        }
+
+        /* Zzz 버블 */
+        .sleep-bubble {
+            position: absolute; top: -25px; right: -25px;
+            font-size: 1.2rem; color: #ccc; opacity: 0; font-weight: bold;
+        }
+        body:not(.light-on):not(.pulling-strained) .sleep-bubble {
+            animation: snore 2s infinite ease-out; opacity: 1;
+        }
+
+        /* [상태 2: 당기는 중 놀란 표정 (NEW! Pulling Strained)] - 😲 */
+        /* JS에서 body에 pulling-strained 클래스를 추가할 때 적용됨 */
+        body.pulling-strained .eye {
+            height: 14px; width: 14px;
+            background: #fff; /* 눈을 동그랗게 뜸 */
+            border-radius: 50%;
+            top: 15px; /* 위치 조정 */
+            box-shadow: 0 0 8px rgba(255,255,255,0.8); /* 놀라서 눈이 빛남 */
+        }
+        body.pulling-strained .mouth {
+            width: 14px; height: 16px;
+            border-radius: 50%;
+            background: #fff; /* 입을 'O' 하고 벌림 */
+            border: none;
+            bottom: 5px;
+        }
+        body.pulling-strained .sleep-bubble { opacity: 0 !important; animation: none !important; }
+
+
+        /* [상태 3: 활짝 웃는 표정 (ON) - 겹침 수정됨] - 😄 */
+        body.light-on .eye {
+            background: #fff;
+            height: 14px; width: 14px; border-radius: 50%;
+            top: 8px; /* 눈 위치를 위로 올림 */
+        }
+        body.light-on .mouth {
+            width: 40px; height: 20px; /* 입 크기 조절 */
+            background: #fff;
+            border-bottom-left-radius: 25px; /* 더 둥글게 */
+            border-bottom-right-radius: 25px;
+            border: none;
+            bottom: 2px; /* 입 위치를 아래로 내림 */
+        }
+        body.light-on .sleep-bubble { display: none; }
+
+        /* ====================================================== */
+
+        /* 전구 */
+        .lamp-bulb {
+            width: 60px; height: 30px; background: #555;
+            border-radius: 0 0 30px 30px; margin: 0 auto;
+            position: relative; z-index: 1; transition: all 0.3s;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+        }
+        body.light-on .lamp-bulb {
+            background: #fff; box-shadow: 0 20px 100px rgba(255, 255, 255, 0.8);
+        }
+
+        /* --- 2. 드래그 가능한 줄 --- */
+        .string-container {
+            width: 4px; height: 200px; margin: 0 auto; position: relative;
+        }
+        .pull-string {
+            width: 4px; height: 100%; background: var(--string-color);
+            transform-origin: top center;
+        }
+        .handle {
+            width: 30px; height: 30px; background: #ccc; border-radius: 50%;
+            position: absolute; bottom: 0; left: 50%;
+            transform: translate(-50%, 50%); cursor: grab;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.3); transition: background 0.2s; z-index: 20;
+        }
+        .handle:active { cursor: grabbing; background: #fff; }
+        .drag-hint {
+            position: absolute; top: 50px; left: 50px; color: #666;
+            font-size: 0.8rem; white-space: nowrap; opacity: 0.7; pointer-events: none; transition: opacity 0.3s;
+        }
+        body.light-on .drag-hint { opacity: 0; }
+        body.pulling-strained .drag-hint { opacity: 0.3; } /* 당길때 힌트 연하게 */
+
+
+        /* --- 3. 오른쪽 콘텐츠 (버튼) --- */
+        .content-area {
+            position: absolute; right: 15%; top: 50%;
+            transform: translateY(-50%); text-align: center;
+            opacity: 0; pointer-events: none; transition: all 0.8s ease-out;
+        }
+        body.light-on .content-area {
+            opacity: 1; transform: translateY(-50%) translateX(0); pointer-events: auto;
+        }
+        .title {
+            font-size: 3rem; color: #333; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 5px;
+        }
+        .enter-btn {
+            display: inline-block; padding: 20px 50px; font-size: 1.2rem;
+            font-weight: bold; color: #fff; background: #000; text-decoration: none;
+            border: 2px solid #000; transition: all 0.3s; position: relative;
+            overflow: hidden; font-family: 'Syncopate', sans-serif;
+        }
+        .enter-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: #FF6B6B; transition: left 0.3s ease; z-index: -1;
+        }
+        .enter-btn:hover { color: #fff; border-color: #FF6B6B; }
+        .enter-btn:hover::before { left: 0; }
+
+        @keyframes snore {
+            0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translate(20px, -20px) scale(1.2); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
-    <div class="cursor"></div>
 
-    <nav>
-        <a href="#hero" class="logo interactable">MY PORTFOLIO</a>
-        <div class="nav-links">
-            <a href="#human-art" class="nav-item interactable">The Origin</a>
-            <a href="#gallery-container" class="nav-item interactable">My AI Characters</a>
-            <a href="#video-section" class="nav-item interactable">The Vision</a>
-        </div>
-    </nav>
-
-    <section id="hero">
-        <h1 class="hero-title">ARTISTIC<br><span class="accent-text">EVOLUTION</span></h1>
-        <p class="hero-subtitle">FROM HUMAN TOUCH TO AI GENERATION</p>
-    </section>
-
-    <section id="human-art">
-        <div class="section-intro">
-            <h2>THE ORIGIN</h2>
-            <p>1학기 기초 디자인 프로젝트. 순수 창작의 기록.</p>
-        </div>
-        <div class="grid-container">
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+01" class="img-content" alt="Art 1">
-                <div class="grid-overlay"><h3>Basic Drawing</h3><p>Pencil on Paper</p></div>
-            </div>
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+02" class="img-content" alt="Art 2">
-                <div class="grid-overlay"><h3>Color Theory</h3><p>Acrylic Painting</p></div>
-            </div>
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/223355/FFF?text=1st+Sem+Art+03" class="img-content" alt="Art 3">
-                <div class="grid-overlay"><h3>Typography</h3><p>Digital Graphic</p></div>
+    <div class="lamp-wrapper">
+        <div class="lamp-wire"></div>
+        <div class="lamp-shade">
+            <div class="sleep-bubble">Zzz...</div>
+            <div class="face">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="mouth"></div>
             </div>
         </div>
-    </section>
-
-    <div id="gallery-container">
-        <div id="gallery-wrapper">
-            <div class="gallery-intro">
-                <h2>MY<br><span class="accent-text">AI Characters</span></h2>
-                <p style="margin-top:20px; color:#8892b0;">AI와의 협업을 통해 확장된 세계관</p>
-            </div>
-            
-            <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="./char1.png" class="img-content" alt="AI Character 1" onerror="this.src='https://placehold.co/400x600/112240/64ffda?text=Image+Not+Found'">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">유성</h3><p class="art-desc">1st Character Design</p></div>
-                </div>
-            </div>
-            
-            <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="./char2.png" class="img-content" alt="AI Character 2" onerror="this.src='https://placehold.co/400x600/112240/64ffda?text=Image+Not+Found'">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Ash Calder</h3><p class="art-desc">2nd Character Design</p></div>
-                </div>
-            </div>
-            
-            <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+03" class="img-content">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Persona 03</h3><p class="art-desc">Concept Variation</p></div>
-                </div>
-            </div>
-             <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+04" class="img-content">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Persona 04</h3><p class="art-desc">Background Art</p></div>
-                </div>
-            </div>
-             <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/112240/64ffda?text=AI+Character+05" class="img-content">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Persona 05</h3><p class="art-desc">Final Composition</p></div>
-                </div>
+        <div class="lamp-bulb"></div>
+        
+        <div class="string-container" id="stringContainer">
+            <div class="pull-string" id="pullString"></div>
+            <div class="handle" id="handle">
+                <div class="drag-hint">▼ 줄을 당겨서 램프를 깨워보세요</div>
             </div>
         </div>
     </div>
 
-    <section id="video-section">
-        <div class="section-intro" style="text-align: right; border-left:none; border-right: 3px solid var(--text-accent); padding-right:20px;">
-            <h2>THE VISION</h2>
-            <p style="margin-left: auto;">AI 모션 그래픽과 광고 영상</p>
-        </div>
-        <div class="video-grid">
-            <div class="video-item interactable">
-                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+01" class="img-content">
-                <div class="video-title">Future Commercial</div>
-            </div>
-            <div class="video-item interactable">
-                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+02" class="img-content">
-                <div class="video-title">Brand Identity</div>
-            </div>
-            <div class="video-item interactable">
-                <img src="https://placehold.co/600x400/112240/64ffda?text=Motion+03" class="img-content">
-                <div class="video-title">Product Teaser</div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <p>Kyungsung University Dept. of Design</p>
-        <p>© 2024 Your Name. All Rights Reserved.</p>
-    </footer>
+    <div class="content-area">
+        <h1 class="title">My Portfolio</h1>
+        <a href="main 1.html" class="enter-btn">Enter Exhibition</a>
+    </div>
 
     <script>
-        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+        const handle = document.getElementById('handle');
+        const pullString = document.getElementById('pullString');
+        const body = document.body;
+        
+        let isDragging = false;
+        let startY = 0;
+        let currentY = 0;
+        const maxPull = 150; 
+        const triggerPull = 100; 
 
-        // 네비게이션
-        document.querySelectorAll('.nav-item, .logo').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                gsap.to(window, {duration: 1, scrollTo: targetId, ease: "power2.out"});
-            });
-        });
+        handle.addEventListener('mousedown', startDrag);
+        handle.addEventListener('touchstart', startDrag);
 
-        // 커서
-        const cursor = document.querySelector('.cursor');
-        const interactables = document.querySelectorAll('.interactable');
-        document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
-        });
-        interactables.forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
-        });
+        function startDrag(e) {
+            isDragging = true;
+            startY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            handle.style.cursor = 'grabbing';
+            handle.style.transition = 'none';
+            pullString.style.transition = 'none';
+            
+            // 드래그 시작 시 기존 상태 초기화
+            body.classList.remove('pulling-strained');
+        }
 
-        // 애니메이션
-        const tlHero = gsap.timeline();
-        tlHero.to('.hero-title', { opacity: 1, y: 0, duration: 1.5, ease: "power4.out", delay: 0.3 })
-              .to('.hero-subtitle', { opacity: 1, duration: 1, delay: -0.8 });
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag);
 
-        gsap.utils.toArray('.grid-item').forEach((item, i) => {
-            gsap.from(item, {
-                y: 50, opacity: 0, duration: 0.8, delay: i * 0.1,
-                scrollTrigger: { trigger: "#human-art", start: "top 70%" }
-            });
-        });
+        function drag(e) {
+            if (!isDragging) return;
 
-        const galleryWrapper = document.getElementById("gallery-wrapper");
-        ScrollTrigger.matchMedia({
-            "(min-width: 768px)": function() {
-                gsap.to(galleryWrapper, {
-                    x: () => -(galleryWrapper.scrollWidth - document.documentElement.clientWidth) + "px",
-                    ease: "none",
-                    scrollTrigger: {
-                        trigger: "#gallery-container", pin: true, scrub: 1,
-                        end: () => "+=" + galleryWrapper.scrollWidth, invalidateOnRefresh: true,
-                    }
-                });
+            const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+            let dy = clientY - startY;
+
+            if (dy < 0) dy = 0;
+            if (dy > maxPull) dy = maxPull + (dy - maxPull) * 0.2; 
+
+            currentY = dy;
+
+            // --- [NEW] 드래그 상태에 따라 표정 변경 ---
+            // 조금이라도 당겨지면(currentY > 10) 놀란 표정 클래스 추가
+            if (currentY > 10 && !body.classList.contains('light-on')) {
+                body.classList.add('pulling-strained');
+            } else {
+                // 다시 위로 올리면 놀란 표정 제거
+                body.classList.remove('pulling-strained');
             }
-        });
+            // ---------------------------------------
 
-        gsap.utils.toArray('.art-card').forEach(card => {
-            gsap.fromTo(card, { rotationY: -25, opacity: 0 },
-                { rotationY: 0, opacity: 1, duration: 1,
-                    scrollTrigger: {
-                        trigger: card, containerAnimation: gsap.getTweensOf(galleryWrapper)[0],
-                        start: "left 80%",
-                    }
-                }
-            )
-        });
+            pullString.style.transform = `scaleY(${1 + currentY / 200})`; 
+            handle.style.transform = `translate(-50%, ${50 + currentY}%)`; 
+        }
 
-        gsap.from(".video-item", {
-            y: 50, opacity: 0, stagger: 0.2, duration: 1,
-            scrollTrigger: { trigger: "#video-section", start: "top 70%" }
-        });
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+
+            handle.style.cursor = 'grab';
+            handle.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            pullString.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+            // --- [NEW] 드래그 놓으면 놀란 표정 즉시 제거 ---
+            body.classList.remove('pulling-strained');
+            // -------------------------------------------
+
+            if (currentY > triggerPull) {
+                toggleLight();
+            }
+
+            pullString.style.transform = 'scaleY(1)';
+            handle.style.transform = 'translate(-50%, 50%)';
+            currentY = 0;
+        }
+
+        function toggleLight() {
+            body.classList.toggle('light-on');
+            if (navigator.vibrate) navigator.vibrate(50); 
+        }
     </script>
 </body>
 </html>
