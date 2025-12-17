@@ -31,6 +31,15 @@
             overflow-x: hidden;
             cursor: none; 
         }
+        
+        /* 팝업 시 스크롤 막기 & 기본 커서 */
+        body.no-scroll { 
+            overflow: hidden; 
+            cursor: auto; 
+        }
+        body.no-scroll .cursor {
+            display: none !important;
+        }
 
         /* --- CUSTOM CURSOR --- */
         .cursor {
@@ -142,10 +151,7 @@
             transition: all 0.2s;
         }
 
-        /* [상태별 표정 - CSS] */
-        body.moving-fast .mouth {
-            width: 15px; height: 15px; border-radius: 50%; bottom: 8px; /* 'O' 모양 */
-        }
+        body.moving-fast .mouth { width: 15px; height: 15px; border-radius: 50%; bottom: 8px; }
         body.moving-fast .eye { height: 24px; } 
 
         .lamp-shade.dizzy .eye { height: 24px; }
@@ -182,6 +188,9 @@
         #human-art { padding: 150px 10%; background-color: #0f0f0f; z-index: 20; }
         .section-intro { margin-bottom: 60px; border-left: 3px solid var(--text-accent); padding-left: 20px; }
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        
+        a.grid-item { text-decoration: none; color: inherit; display: block; cursor: pointer; }
+        
         .grid-item { background: var(--card-bg); border-radius: 8px; overflow: hidden; height: 400px; position: relative; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
         .grid-item:hover { transform: translateY(-10px); box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2); border-color: var(--text-accent); }
         .img-content { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; filter: grayscale(100%); }
@@ -189,23 +198,75 @@
         .grid-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); opacity: 0; transition: opacity 0.3s; }
         .grid-item:hover .grid-overlay { opacity: 1; }
 
+        /* GALLERY & MODAL */
         #gallery-container { position: relative; z-index: 5; overflow: hidden; height: 100vh; }
         #gallery-wrapper { width: 600%; height: 100vh; display: flex; flex-wrap: nowrap; background: #0f0f0f; }
         .gallery-intro { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; flex-shrink: 0; text-align: center; }
         .art-piece { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; flex-shrink: 0; perspective: 1000px; }
-        .art-card { width: 400px; height: 600px; background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(5px); transition: all 0.5s ease; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        .art-card { 
+            width: 400px; height: 600px; background: var(--card-bg); 
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; 
+            display: flex; flex-direction: column; overflow: hidden; 
+            backdrop-filter: blur(5px); transition: all 0.5s ease; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); cursor: pointer;
+        }
         .art-card:hover { border-color: var(--text-accent); box-shadow: 0 0 30px var(--glow-color), 0 0 10px var(--text-accent) inset; transform: scale(1.02) translateY(-10px); }
         .art-img-wrapper { flex: 1; overflow: hidden; position: relative; }
         .art-info { padding: 20px; background: rgba(10,10,10,0.95); border-top: 1px solid rgba(255,255,255,0.1); }
         .art-title { font-size: 1.4rem; color: #fff; margin-bottom: 5px; }
 
-        #video-section { background-color: #0a0a0a; padding: 150px 10%; position: relative; z-index: 50; box-shadow: 0 -30px 50px rgba(0,0,0,0.8); }
+        /* MODAL STYLES */
+        .modal {
+            display: none; /* 기본 숨김 */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95); z-index: 20000;
+            justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.5s;
+        }
+        .modal.active { display: flex; opacity: 1; }
+        
+        .modal-content {
+            display: flex; gap: 50px; max-width: 1200px; width: 90%; height: 80%;
+            background: #111; border: 1px solid #333; padding: 0;
+            border-radius: 20px; overflow: hidden; box-shadow: 0 0 50px rgba(255, 215, 0, 0.1);
+        }
+        .modal-img-box {
+            flex: 1; background: #000; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+        .modal-img-box img { width: 100%; height: 100%; object-fit: contain; }
+        
+        .modal-info-box {
+            flex: 1; padding: 60px; display: flex; flex-direction: column; justify-content: center;
+            color: #fff;
+        }
+        .modal-title { font-family: 'Syncopate'; font-size: 3rem; margin-bottom: 20px; color: var(--text-accent); }
+        .modal-desc { font-size: 1.5rem; color: #888; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .modal-detail { font-size: 1.1rem; line-height: 1.8; color: #ccc; white-space: pre-line; }
+        
+        .close-btn {
+            position: absolute; top: 30px; right: 30px;
+            font-size: 3rem; color: #fff; cursor: pointer;
+            transition: color 0.3s; font-family: sans-serif;
+        }
+        .close-btn:hover { color: var(--lamp-shade-dark); }
+
+
+        /* [수정됨] 비디오 섹션 - 상단 여백 제거하여 갤러리 직후에 나오도록 수정 */
+        #video-section { 
+            background-color: #0a0a0a; 
+            padding: 0 10% 150px; /* Top:0, Side:10%, Bottom:150px */
+            position: relative; 
+            z-index: 50; 
+            box-shadow: 0 -30px 50px rgba(0,0,0,0.8); 
+        }
         .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 40px; }
         .video-item { aspect-ratio: 16/9; background: #1a1a1a; border-radius: 8px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid transparent; transition: all 0.3s; }
         .video-item:hover { border-color: var(--text-accent); box-shadow: 0 0 30px rgba(255, 107, 107, 0.3); transform: scale(1.02); }
-        .video-title { position: absolute; bottom: 20px; left: 20px; font-family: 'Syncopate'; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .video-content { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .video-title { position: absolute; bottom: 20px; left: 20px; font-family: 'Syncopate'; color: #fff; z-index: 20; text-shadow: 0 2px 5px black; }
 
-        footer { position: relative; z-index: 60; padding: 50px; text-align: center; background: #000; color: #555; border-top: 1px solid #222; }
+        footer { position: relative; z-index: 100; padding: 50px; text-align: center; background: #000; color: #555; border-top: 1px solid #222; }
 
     </style>
 </head>
@@ -217,7 +278,7 @@
         <div class="nav-links">
             <a href="#human-art" class="nav-item interactable">The Origin</a>
             <a href="#gallery-container" class="nav-item interactable">My AI Characters</a>
-            <a href="#video-section" class="nav-item interactable">The Vision</a>
+            <a href="#video-section" class="nav-item interactable">My Videos</a>
         </div>
     </nav>
 
@@ -248,21 +309,32 @@
     <section id="human-art">
         <div class="section-intro">
             <h2>THE ORIGIN</h2>
-            <p>1학기 기초 디자인 프로젝트.</p>
+            <p>1학기 과제물</p>
         </div>
         <div class="grid-container">
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/333/FFF?text=Art+01" class="img-content">
-                <div class="grid-overlay"><h3>Basic Drawing</h3><p>Pencil</p></div>
-            </div>
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/333/FFF?text=Art+02" class="img-content">
-                <div class="grid-overlay"><h3>Color Theory</h3><p>Acrylic</p></div>
-            </div>
-            <div class="grid-item interactable">
-                <img src="https://placehold.co/400x600/333/FFF?text=Art+03" class="img-content">
-                <div class="grid-overlay"><h3>Typography</h3><p>Digital</p></div>
-            </div>
+            <a href="https://yunjinssung.github.io/myweb/index.html" class="grid-item interactable" target="_blank">
+                <img src="1class1.png" class="img-content" alt="Portfolio Image">
+                <div class="grid-overlay">
+                    <h3>My 1st Portfolio</h3>
+                    <p>Website</p>
+                </div>
+            </a>
+
+            <a href="https://yunjinssung.github.io/myweb/index.html" class="grid-item interactable" target="_blank">
+                <img src="1class2.png" class="img-content" alt="Art 2">
+                <div class="grid-overlay">
+                    <h3>Color Theory</h3>
+                    <p>Acrylic</p>
+                </div>
+            </a>
+            
+            <a href="https://yunjinssung.github.io/myweb/index.html" class="grid-item interactable" target="_blank">
+                <img src="1class3.png" class="img-content" alt="Art 3">
+                <div class="grid-overlay">
+                    <h3>Typography</h3>
+                    <p>Digital</p>
+                </div>
+            </a>
         </div>
     </section>
 
@@ -270,74 +342,91 @@
         <div id="gallery-wrapper">
             <div class="gallery-intro">
                 <h2>MY<br><span class="accent-text">AI Characters</span></h2>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #888; letter-spacing: 1px;">
+                    캐릭터 카드를 클릭하여 정보를 확인해보세요
+                </p>
             </div>
             
             <div class="art-piece">
-                <div class="art-card interactable">
+                <div class="art-card interactable" 
+                     data-title="유성 (Yuseong)" 
+                     data-desc="1st Character Design"
+                     data-detail="밤하늘의 별똥별을 모티브로 한 캐릭터입니다.&#10;차분하고 신비로운 분위기를 가지고 있으며, 주로 우주와 관련된 배경에 등장합니다.&#10;AI 툴을 활용하여 초기 컨셉을 잡고 리터칭하였습니다."
+                     data-img="./char1.png">
                     <div class="art-img-wrapper">
                         <img src="./char1.png" class="img-content" alt="Character 1" onerror="this.src='https://placehold.co/400x600/1a1a1a/FFD700?text=No+Image'">
                     </div>
                     <div class="art-info"><h3 class="art-title">유성</h3><p class="art-desc">1st Character</p></div>
                 </div>
             </div>
+            
              <div class="art-piece">
-                <div class="art-card interactable">
+                <div class="art-card interactable"
+                     data-title="Ash Calder"
+                     data-desc="2nd Character Design"
+                     data-detail="화산 지대에서 영감을 받은 강렬한 전사 캐릭터입니다.&#10;붉은색과 검은색의 대비를 통해 강인함을 표현했습니다.&#10;생성형 AI의 무작위성을 제어하여 원하는 갑옷 디테일을 구현했습니다."
+                     data-img="./char2.png">
                     <div class="art-img-wrapper">
                         <img src="./char2.png" class="img-content" alt="Character 2" onerror="this.src='https://placehold.co/400x600/1a1a1a/FFD700?text=No+Image'">
                     </div>
                     <div class="art-info"><h3 class="art-title">Ash Calder</h3><p class="art-desc">2nd Character</p></div>
                 </div>
             </div>
+            
              <div class="art-piece">
-                <div class="art-card interactable">
+                <div class="art-card interactable"
+                     data-title="쿠로사와 렌"
+                     data-desc="3rd Character Design"
+                     data-detail="도심 속 고독한 현대인을 표현한 캐릭터입니다.&#10;차가운 도시의 네온 사인과 대조되는 따뜻한 내면을 시각화했습니다.&#10;다양한 표정 바리에이션을 연구한 프로젝트입니다."
+                     data-img="char3.png">
                     <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+3" class="img-content">
+                        <img src="char3.png" class="img-content">
                     </div>
-                    <div class="art-info"><h3 class="art-title">Persona 03</h3><p class="art-desc">Variation</p></div>
+                    <div class="art-info"><h3 class="art-title">쿠로사와 렌</h3><p class="art-desc">3rd Character</p></div>
                 </div>
             </div>
-            <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+4" class="img-content">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Persona 04</h3><p class="art-desc">Background</p></div>
-                </div>
+        </div>
+    </div> 
+
+    <div id="char-modal" class="modal">
+        <div class="close-btn interactable">&times;</div>
+        <div class="modal-content">
+            <div class="modal-img-box">
+                <img id="modal-img" src="" alt="Detail Image">
             </div>
-             <div class="art-piece">
-                <div class="art-card interactable">
-                    <div class="art-img-wrapper">
-                        <img src="https://placehold.co/400x600/1a1a1a/FFD700?text=Character+5" class="img-content">
-                    </div>
-                    <div class="art-info"><h3 class="art-title">Persona 05</h3><p class="art-desc">Final</p></div>
-                </div>
+            <div class="modal-info-box">
+                <h2 id="modal-title" class="modal-title">TITLE</h2>
+                <p id="modal-desc" class="modal-desc">Description</p>
+                <p id="modal-detail" class="modal-detail">Detail text goes here...</p>
             </div>
         </div>
     </div>
 
     <section id="video-section">
-        <div class="section-intro" style="text-align: right; border-right: 3px solid var(--text-accent); padding-right:20px;">
-            <h2>THE VISION</h2>
-            <p>AI Motion Graphics</p>
+        <div class="section-intro" style="text-align: right; border-right: 3px solid #FFD700; padding-right:20px; position:relative; z-index:100;">
+            <h2 style="color:#fff;">My Videos</h2>
+            <p style="color:#FFD700;">this is legend</p>
         </div>
+        
         <div class="video-grid">
             <div class="video-item interactable">
-                <img src="https://placehold.co/600x400/1a1a1a/FF6B6B?text=Video+01" class="img-content">
-                <div class="video-title">Future Commercial</div>
+                <video src="vew1.mp4" class="video-content" autoplay muted loop playsinline controls></video>
+                <div class="video-title" style="z-index:20; text-shadow:0 2px 5px black;">AI 광고 영상</div>
             </div>
+            
             <div class="video-item interactable">
-                <img src="https://placehold.co/600x400/1a1a1a/FF6B6B?text=Video+02" class="img-content">
-                <div class="video-title">Brand Identity</div>
+                <video src="vew2.mp4" class="video-content" autoplay muted loop playsinline controls></video>
+                <div class="video-title" style="z-index:20; text-shadow:0 2px 5px black;">AI 영상 공모전 출품작</div>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>© 2024 Your Name. All Rights Reserved.</p>
+        <p>Kyungsung University Dept. of Design</p>
+        <p>© 2025 Yun Jin Seong. All Rights Reserved.</p>
     </footer>
 
     <script>
-        // 1. 램프 로직 (눈알 굴리기 + 기절)
         const lampShade = document.getElementById('lampShade');
         const pupils = document.querySelectorAll('.pupil');
         const mouth = document.getElementById('lampMouth');
@@ -355,18 +444,15 @@
             mouseX = e.clientX;
             mouseY = e.clientY;
 
-            // 속도 계산
             const dx = mouseX - lastMouseX;
             const dy = mouseY - lastMouseY;
             mouseSpeed = Math.sqrt(dx*dx + dy*dy);
             lastMouseX = mouseX;
             lastMouseY = mouseY;
 
-            // 기절 감도 (800)
             if (mouseSpeed > 800) {
                 goDizzy();
             } else {
-                // 표정 변화
                 if (mouseSpeed > 50) {
                     body.classList.add('moving-fast'); 
                 } else {
@@ -381,26 +467,20 @@
                 const rect = pupil.parentElement.getBoundingClientRect();
                 const eyeCenterX = rect.left + rect.width / 2;
                 const eyeCenterY = rect.top + rect.height / 2;
-                
                 const angle = Math.atan2(my - eyeCenterY, mx - eyeCenterX);
                 const distance = Math.min(5, Math.hypot(mx - eyeCenterX, my - eyeCenterY) / 10);
-                
                 const moveX = Math.cos(angle) * distance;
                 const moveY = Math.sin(angle) * distance;
-                
                 pupil.style.transform = `translate(calc(-50% + ${moveX}px), calc(-50% + ${moveY}px))`;
             });
 
-            // 입도 살짝 움직여서 입체감
             const mouthRect = mouth.parentElement.getBoundingClientRect();
             const mouthCX = mouthRect.left + mouthRect.width / 2;
             const mouthCY = mouthRect.top + mouthRect.height / 2;
             const mDistX = (mx - mouthCX) / 30; 
             const mDistY = (my - mouthCY) / 30;
-            
             const clampX = Math.max(-5, Math.min(5, mDistX));
             const clampY = Math.max(-2, Math.min(5, mDistY));
-            
             mouth.style.transform = `translateX(calc(-50% + ${clampX}px)) translateY(${clampY}px)`;
         }
 
@@ -411,7 +491,6 @@
             body.classList.remove('moving-fast');
             
             clearTimeout(dizzyTimeout);
-            // 기절 시간 3초
             dizzyTimeout = setTimeout(() => {
                 isDizzy = false;
                 lampShade.classList.remove('dizzy');
@@ -419,10 +498,8 @@
             }, 3000);
         }
 
-        // 2. 포트폴리오 스크롤 애니메이션
         gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-        // 커서 로직
         const cursor = document.querySelector('.cursor');
         gsap.set(cursor, {xPercent: -50, yPercent: -50});
         window.addEventListener('mousemove', e => {
@@ -433,7 +510,6 @@
             el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // 네비게이션 스크롤 (탑 버튼 제외)
         document.querySelectorAll('.nav-item, .logo').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -442,7 +518,6 @@
             });
         });
 
-        // 작품 애니메이션
         gsap.utils.toArray('.grid-item').forEach((item, i) => {
             gsap.from(item, {
                 y: 50, opacity: 0, duration: 0.8, delay: i * 0.1,
@@ -450,7 +525,6 @@
             });
         });
 
-        // 가로 스크롤
         const galleryWrapper = document.getElementById("gallery-wrapper");
         ScrollTrigger.matchMedia({
             "(min-width: 768px)": function() {
@@ -465,7 +539,6 @@
             }
         });
 
-        // 3D 카드
         gsap.utils.toArray('.art-card').forEach(card => {
             gsap.fromTo(card, { rotationY: -25, opacity: 0 },
                 { rotationY: 0, opacity: 1, duration: 1,
@@ -477,10 +550,41 @@
             )
         });
 
-        // 영상 섹션
-        gsap.from(".video-item", {
-            y: 50, opacity: 0, stagger: 0.2, duration: 1,
-            scrollTrigger: { trigger: "#video-section", start: "top 80%" }
+        const modal = document.getElementById('char-modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalDetail = document.getElementById('modal-detail');
+        const closeBtn = document.querySelector('.close-btn');
+        const artCards = document.querySelectorAll('.art-card');
+
+        artCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const title = card.getAttribute('data-title');
+                const desc = card.getAttribute('data-desc');
+                const detail = card.getAttribute('data-detail');
+                const imgSrc = card.getAttribute('data-img');
+
+                modalTitle.textContent = title;
+                modalDesc.textContent = desc;
+                modalDetail.textContent = detail;
+                modalImg.src = imgSrc;
+
+                modal.classList.add('active');
+                body.classList.add('no-scroll');
+            });
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            body.classList.remove('no-scroll');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if(e.target === modal) {
+                modal.classList.remove('active');
+                body.classList.remove('no-scroll');
+            }
         });
 
     </script>
